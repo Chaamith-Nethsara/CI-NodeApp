@@ -1,6 +1,8 @@
 name: Cross-OS CI Test
 
 on: [push,pull_request]
+  deployment:
+  deployment_status:
 
 jobs:
   test:
@@ -17,5 +19,9 @@ jobs:
           node-version: ${{matrix.node}}  
       - run: npm install
       - run: npm test
-
+  check-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log deployment info
+        run: echo "Deployment status: ${{ github.event.deployment_status.state }}"
   
