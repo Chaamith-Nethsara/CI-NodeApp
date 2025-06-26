@@ -1,27 +1,28 @@
-name: Cross-OS CI Test
+name: SonarQube Analysis
 
-on: [push,pull_request,deployment,deployment_status]
+on: [push,pull_request]
   
   
 
 jobs:
-  test:
-    runs-on: ${{matrix.os}}
-    strategy:
-      matrix:
-        os: [ubuntu-latest,windows-latest,macos-latest]
-        node: [18.0, 22.0]
+  sonarqube:
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3 
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          node-version: ${{matrix.node}}  
-      - run: npm install
-      - run: npm test
-  check-status:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Log deployment info
-        run: echo "Deployment status: ${{ github.event.deployment_status.state }}"
-  
+          distribution: 'temurin'
+          java-version: '17' 
+      - name: Build and test (generates coverage report)
+        run: ./gradlew test jacocoTestReport
+        
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v1.0.0
+        with:
+          projectBaseDir: '.'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
