@@ -1,8 +1,8 @@
 name: Cross-OS CI Test
 
-on: [push,pull_request]
-  deployment:
-  deployment_status:
+on: [push,pull_request,deployment,deployment_status]
+  
+  
 
 jobs:
   test:
